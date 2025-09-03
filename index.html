@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Image & Video Generator</title>
+<style>
+body { font-family: Arial; background:#111; color:#fff; margin:0; padding:0;}
+.container { max-width:900px; margin:auto; padding:20px;}
+button { padding:10px 20px; margin:5px; cursor:pointer; }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9);}
+.modal-content { background:#222; margin:5% auto; padding:20px; width:90%; max-width:800px; }
+img, video { max-width:100%; margin:10px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>AI Image & Video Generator</h1>
+  <label>Enter Prompt:</label>
+  <input type="text" id="prompt" placeholder="Cinematic scene, 1940s style" style="width:100%; padding:10px;">
+  
+  <label>Number of Variations:</label>
+  <select id="variations">
+    <option value="4">4</option>
+    <option value="7">7</option>
+    <option value="9">9</option>
+  </select>
+
+  <label>Image Size / Ratio:</label>
+  <select id="size">
+    <option value="512x512">512x512</option>
+    <option value="768x768">768x768</option>
+    <option value="1024x1024">1024x1024</option>
+  </select>
+
+  <div>
+    <button onclick="generateImage()">Generate Image</button>
+    <button onclick="generateVideo()">Generate Video Scenes</button>
+  </div>
+</div>
+
+<!-- Modal for Results -->
+<div id="resultModal" class="modal">
+  <div class="modal-content">
+    <span onclick="closeModal()" style="float:right; cursor:pointer; font-size:24px;">&times;</span>
+    <div id="results"></div>
+  </div>
+</div>
+
+<script>
+function openModal() { document.getElementById('resultModal').style.display='block'; }
+function closeModal() { document.getElementById('resultModal').style.display='none'; }
+
+async function generateImage() {
+  const prompt = document.getElementById('prompt').value;
+  const variations = document.getElementById('variations').value;
+  const size = document.getElementById('size').value;
+
+  openModal();
+  document.getElementById('results').innerHTML = '<p>Generating images, please wait...</p>';
+
+  // Call Colab backend API (to be created)
+  const response = await fetch('YOUR_COLAB_API_URL/generate_image', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({prompt, variations, size})
+  });
+  const data = await response.json();
+
+  // Display results in modal
+  let html = '';
+  data.images.forEach(img => {
+    html += `<img src="${img}" alt="AI Image">`;
+  });
+  document.getElementById('results').innerHTML = html;
+}
+
+async function generateVideo() {
+  const prompt = document.getElementById('prompt').value;
+  openModal();
+  document.getElementById('results').innerHTML = '<p>Generating video, please wait...</p>';
+
+  const response = await fetch('YOUR_COLAB_API_URL/generate_video', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({prompt})
+  });
+  const data = await response.json();
+
+  document.getElementById('results').innerHTML = `<video src="${data.video}" controls autoplay loop></video>`;
+}
+</script>
+</body>
+</html>
